@@ -1,0 +1,78 @@
+language: ruby
+rvm:
+  - 2.2
+env: DEVICE="iPhone 6" SCHEME=E24 APP_NAME=mine24 # Default build definition
+branches:
+  only:
+  - develop
+  - master
+  - "/^release.*$/"
+  - "/^hotfix.*$/"
+  - "/^feature.*$/"
+  - "/^test.*$/"
+before_install: ./travis.before-install.sh
+script:  ./travis.script.sh
+stages:
+  - name: test
+    if: branch =~ /^feature/.*$/
+  - name: snapshot-test
+    if: (branch = develop AND type = cron) OR branch =~ /^(release|hotfix)\/.*$/
+  - name: snapshot-analyze
+    if: (branch = develop AND type = cron) OR branch =~ /^(release|hotfix)\/.*$/
+  - name: build
+    if: (type = push AND branch = develop) OR branch =~ /^(release|hotfix)\/.*$/
+  - name: deploy-fabric
+    if:  type = push AND branch = develop
+  - name: deploy-testflight
+    if: branch =~ /^(release|hotfix)\/.*$/
+  - name: post-deployment
+    if: (branch = develop AND type = push) OR branch =~ /^(release|hotfix)\/.*$/
+matrix:
+  include:
+    - stage: test
+    - env: SCHEME=Omni APP_NAME=omni
+    - env: SCHEME=Delta APP_NAME=omniekonomi
+    - env: SCHEME=SN APP_NAME=fplus
+
+    - stage: snapshot-test
+    - env: DEVICE="iPhone 6 Plus" SCHEME=E24 APP_NAME=mine24
+    - env: DEVICE="iPhone X" SCHEME=E24 APP_NAME=mine24
+    - env: DEVICE="iPhone SE" SCHEME=E24 APP_NAME=mine24
+    - env: DEVICE="iPhone 6" SCHEME=Omni APP_NAME=omni
+    - env: DEVICE="iPhone 6 Plus" SCHEME=Omni APP_NAME=omni
+    - env: DEVICE="iPhone X" SCHEME=Omni APP_NAME=omni
+    - env: DEVICE="iPhone SE" SCHEME=Omni APP_NAME=omni
+    - env: DEVICE="iPhone 6" SCHEME=Delta APP_NAME=omniekonomi
+    - env: DEVICE="iPhone 6 Plus" SCHEME=Delta APP_NAME=omniekonomi
+    - env: DEVICE="iPhone X" SCHEME=Delta APP_NAME=omniekonomi
+    - env: DEVICE="iPhone SE" SCHEME=Delta APP_NAME=omniekonomi
+    - env: DEVICE="iPhone 6" SCHEME=SN APP_NAME=fplus
+    - env: DEVICE="iPhone 6 Plus" SCHEME=SN APP_NAME=fplus
+    - env: DEVICE="iPhone X" SCHEME=SN APP_NAME=fplus
+    - env: DEVICE="iPhone SE" SCHEME=SN APP_NAME=fplus
+
+    - stage: snapshot-analyze
+    - env: SCHEME=Omni APP_NAME=omni
+    - env: SCHEME=Delta APP_NAME=omniekonomi
+    - env: SCHEME=SN APP_NAME=fplus
+      
+    - stage: build
+    - env: SCHEME=Omni APP_NAME=omni
+    - env: SCHEME=Delta APP_NAME=omniekonomi
+    - env: SCHEME=SN APP_NAME=fplus
+    
+    - stage: deploy-fabric
+    - env: SCHEME=Omni APP_NAME=omni
+    - env: SCHEME=Delta APP_NAME=omniekonomi
+    - env: SCHEME=SN APP_NAME=fplus
+
+    - stage: deploy-testflight
+    - env: SCHEME=Omni APP_NAME=omni
+    - env: SCHEME=Delta APP_NAME=omniekonomi
+    - env: SCHEME=SN APP_NAME=fplus
+
+    - stage: post-deployment
+      language: node_js
+      node: "8"
+      os: osx
+      script: echo "Run once"
