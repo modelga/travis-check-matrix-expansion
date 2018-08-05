@@ -1,0 +1,47 @@
+language: ruby
+rvm:
+  - 2.2
+env:
+  - SCHEME=E24 APP_NAME=mine24
+  - SCHEME=Omni APP_NAME=omni
+  - SCHEME=Delta APP_NAME=omniekonomi
+  - SCHEME=SN APP_NAME=fplus
+branches:
+  only:
+  - develop
+  - master
+  - "/^release.*$/"
+  - "/^hotfix.*$/"
+  - "/^feature.*$/"
+  - "/^test.*$/"
+before_install: echo "BEFORE"
+script: echo "TEST"
+jobs:
+  include:
+    - stage: test
+      if: branch =~ ^feature/.*$
+      script: echo "RUN"
+    - stage: snapshot-test
+      env: 
+        - DEVICE="iPhone 6"
+        - DEVICE="iPhone 6 Plus"
+        - DEVICE="iPhone X"
+        - DEVICE="iPhone SE"
+      if: (branch = develop AND type = cron) OR branch =~ /^(release|hotfix)\/.*$/
+      script: echo $DEVICE
+    - stage: snapshot-analyze
+      if: (branch = develop AND type = cron) OR branch =~ /^(release|hotfix)\/.*$/
+      script: echo "RUN"
+    - stage: build
+      if: type = push AND branch = develop OR branch =~ /^(release|hotfix)\/.*$/
+      script: echo "RUN"
+    - stage: deploy-fabric
+      if: type = push AND branch = develop
+      script: echo "RUN"
+    - stage: deploy-testflight
+      if: type = push AND branch =~ /^(release|hotfix)\/.*$/
+      script: echo "RUN"
+    - stage: post-deployment
+      if: (branch =~ /^(release|hotfix)\/.*$/) OR (branch = develop && cron = false)
+      script: echo "RUN"
+      env: SCHEME= APP=
