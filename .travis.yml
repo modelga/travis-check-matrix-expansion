@@ -1,7 +1,4 @@
-language: ruby
-rvm:
-  - 2.2
-env: DEVICE="iPhone 6" SCHEME=E24 APP_NAME=mine24 # Default build definition
+dist: trusty
 branches:
   only:
   - develop
